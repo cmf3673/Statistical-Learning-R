@@ -64,7 +64,7 @@ summary(lm(medv ~ lstat * age)) # includes lstat, age, and lstat * age as predic
 # Non-linear transformations of predictors
 lm.fit2 = lm(medv~lstat+I(lstat^2)) # Wrap in I() bc want to preserve the standard usage of ^, like eval()
 summary(lm.fit2) # small p-value so ^2 term helped
-anova(lm(medv ~ lstat), lm.fit2) # performs test where Ho: Models equal, Ha: second model better
+anova(lm(medv ~ lstat), lm.fit2) # performs test where Ho: Models equal, Ha: more complex model better
 par(mfrow = c(2,2))
 plot(lm.fit2) # much less pattern in residual plot
 lm.fit5 = lm(medv~poly(lstat, 5)) # gets model using all orders of lstat up to 5
@@ -93,11 +93,31 @@ LoadLibraries()
 # Practice #
 ############
 
+# Iris data
+iris.data = iris
+attach(iris)
+names(iris)
+pairs(iris.data[, 1:5])
 
+# predicting Petal.Width 
+lm.fit = lm(Petal.Width ~., data = iris.data)
+summary(lm.fit)
 
+# Removing Sepal.Length 
+lm.fit1 = lm(Petal.Width ~ .-Sepal.Length, data = iris.data)
+summary(lm.fit1)
 
+# Compare 
+anova(lm.fit1, lm.fit) # More complex models need much better accuracy to justify complexity
+# Complexity is justified here (But barely) as .05 > .0389.
+?anova
+contrasts(Species)
 
-
+# residuals
+RSE = summary(lm.fit)$sigma # Estimate of epsilon; average amount predictions will be off with even a perfect linear model.
+RSE
+R.sq = summary(lm.fit)$r.sq # prop. of variance explained by model
+R.sq
 
 
 
