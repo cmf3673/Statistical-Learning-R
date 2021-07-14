@@ -118,6 +118,3 @@ RSE = summary(lm.fit)$sigma # Estimate of epsilon; average amount predictions wi
 RSE
 R.sq = summary(lm.fit)$r.sq # prop. of variance explained by model
 R.sq
-
-
-
