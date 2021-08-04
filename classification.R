@@ -75,15 +75,29 @@ summary(glm.fits)
 glm.probs = predict(glm.fits, asteroids.test, type = 'response')
 glm.pred = rep(0, 1187)
 glm.pred[glm.probs > .5] = 1
-mean(glm.pred == asteroids.test$Hazardous) # 96.6% correct
-#cancer.data = cancer.data[,2:11]
-#cancer.data = cancer.data[cancer.data$type_of_breast_surgery == 'MASTECTOMY' | cancer.data$type_of_breast_surgery == 'BREAST CONSERVING',]
-#Mastectomy = rep(0, nrow(cancer.data))
-#Mastectomy[cancer.data$type_of_breast_surgery == 'MASTECTOMY'] = 1
-#cancer.data$mastectomy = Mastectomy
-#pairs(cancer.data)
-#glm(type_of_breast_surgery~., data = cancer.data, family = 'binomial')
+mean(glm.pred == asteroids.test$Hazardous) # 96.6% correct, something's up..
 
+# LDA on Smarket data
+library(MASS)
+attach(Smarket)
+plot(Lag1, Lag2, col = Direction) # Doesn't look very separable
+lda.fit = lda(Direction ~ Lag1 + Lag2, data = Smarket, subset = train)
 
+# drawing discrimination line
+nd.1 = seq(from = min(Lag1), to = max(Lag1), length.out = 1250)
+nd.2 = seq(from = min(Lag2), to = max(Lag2), length.out = 1250)
+nd = expand.grid(x = nd.1, y = nd.2)
+prd = as.numeric(predict(lda.fit, newdata = nd)$class)
 
+plot(Lag1, Lag2, col = Direction)
+points(lda.fit$means, pch = "+", cex = 3, col = c('black', 'red'))
+contour(x = nd.1, y = nd.2, z = matrix(prd, nrow = 1250, ncol = 1250), 
+        levels = c(1, 2), add = T, drawlabels = F) # issues, groups too close?
+
+# back to LDA
+lda.pred = predict(lda.fit, Smarket.2005)
+names(lda.pred)
+lda.class = lda.pred$class
+table(lda.class, Direction.2005) # almost the same as log regression
+mean(lda.class == Direction.2005) # about 56% correct
 
